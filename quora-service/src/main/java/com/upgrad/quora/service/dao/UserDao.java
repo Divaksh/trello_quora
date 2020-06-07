@@ -47,6 +47,10 @@ public class UserDao {
             return null;
         }
     }
+    public UserAuthTokenEntity createAuthToken(final UserAuthTokenEntity userAuthTokenEntity) {
+        entityManager.persist(userAuthTokenEntity);
+        return userAuthTokenEntity;
+    }
 
 
 }
