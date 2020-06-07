@@ -71,7 +71,7 @@
               "$ref": "#/definitions/SignupUserResponse"
             }
           },
-          "400": {
+          "400":  {
             "description": "BAD REQUEST - server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, mandatory elements are missing)",
             "headers": {
               "request-id": {
