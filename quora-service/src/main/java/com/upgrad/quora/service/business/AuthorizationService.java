@@ -61,6 +61,27 @@ public class AuthorizationService {
         return userSignedIn;
 
     }
+    public UserAuthTokenEntity authenticateCommonRequest(final String accessToken,final String requestDetailsString) throws AuthenticationFailedException, UserNotFoundException {
+        UserRequestDetails userRequestDetails = getUserRequestDetails(accessToken,requestDetailsString);
+        UserAuthTokenEntity userSignedIn=userRequestDetails.getUserAuthTokenEntity();
+        String request=userRequestDetails.getRequest();
+        String searchById =userRequestDetails.getSearchById();
+        boolean notSignedIn=userRequestDetails.isUserNotSignedIn();
+        boolean signedOut =userRequestDetails.isUserSignedOut();
+        if(request.equalsIgnoreCase("get-user-details-request")) {
+            if (notSignedIn) {
+                throw new AuthenticationFailedException("ATHR-001", "User has not signed in");
+            } else if (signedOut) {
+                throw new AuthenticationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
+            }
+            UserEntity fetchedUser = userDao.fetchUserDetails(searchById);
+            if (fetchedUser == null) {
+                throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
+            }
+
+        }
+        return userSignedIn;
+    }
     public UserRequestDetails getUserRequestDetails(final String accessToken,final String requestDetailsString){
         String [] requestDetails =requestDetailsString.split("@ID ",2);
         String request=requestDetails[0];
