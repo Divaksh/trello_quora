@@ -1,7 +1,7 @@
 package com.upgrad.quora.service.business;
 
-import com.upgrad.quora.service.dao.AnswerDao;
-import com.upgrad.quora.service.dao.QuestionDao;
+//import com.upgrad.quora.service.dao.AnswerDao;
+//import com.upgrad.quora.service.dao.QuestionDao;
 import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.entity.QuestionEntity;
@@ -19,11 +19,11 @@ public class AuthorizationService {
 
     @Autowired
     private UserDao userDao;
-    @Autowired
+/*    @Autowired
     private QuestionDao questionDao;
     @Autowired
     private AnswerDao answerDao;
-
+*/
     public void validateUserSignUpRequest(final String searchByString, final String requestDetails) throws SignUpRestrictedException {
         new UserEntity();
         UserEntity validateUserSignUp;
@@ -113,7 +113,7 @@ public class AuthorizationService {
         boolean userNotSignedIn,userSignedOut;
         userNotSignedIn=userSignedOut=false;
         if(userSignedIn==null) userNotSignedIn=true;
-        if(((!userNotSignedIn) && (userSignedIn.getLogoutAt() != null)) || (!userNotSignedIn) && (timeNow.isAfter(userSignedIn.getExpiresAt()))) userSignedOut=true;
+        if(((!userNotSignedIn) && (userSignedIn.getLogoutAt() != null))) userSignedOut=true;
         return new UserRequestDetails(userSignedIn,request,searchById,userNotSignedIn,userSignedOut);
 
     }
