@@ -51,6 +51,17 @@ public class UserDao {
         entityManager.persist(userAuthTokenEntity);
         return userAuthTokenEntity;
     }
+    public UserAuthTokenEntity checkUserStatus(final String accessToken) {
+        try{
+            return entityManager.createNamedQuery("userStatusByAccessToken",UserAuthTokenEntity.class).setParameter("accessToken",accessToken).getSingleResult();
+        }catch(NoResultException nre){
+            return null;
+        }
+    }
 
+    public void updateUserStatus(final UserAuthTokenEntity userSignedOut) {
+        entityManager.merge(userSignedOut);
+
+    }
 
 }
