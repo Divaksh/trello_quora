@@ -63,5 +63,12 @@ public class UserDao {
         entityManager.merge(userSignedOut);
 
     }
+    public UserEntity fetchUserDetails(final String userId) {
+        try{
+            return entityManager.createNamedQuery("userByUuid",UserEntity.class).setParameter("uuid",userId).getSingleResult();
+        } catch (NoResultException nre){
+            return null;
+        }
+    }
 
 }
