@@ -38,5 +38,30 @@ public class UserBusinessService {
         requestDetails="validate-emailaddress";
         authorizationService.validateUserSignUpRequest(emailAddress,requestDetails);
     }
+    @Transactional(propagation = Propagation.REQUIRED)
+    public UserAuthTokenEntity authenticate(final String username , final String password) throws AuthenticationFailedException {
+        UserEntity userEntity = userDao.checkUsername(username);
+        if(userEntity == null) {
 
+            throw new AuthenticationFailedException("ATH-001","This Username does not exist");
+        }
+        final String encryptedPassword = passwordCryptographyProvider.encrypt(password,userEntity.getSalt());
+        if(encryptedPassword.equals(userEntity.getPassword())) {
+            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(encryptedPassword);
+            UserAuthTokenEntity userAuthTokenEntity = new UserAuthTokenEntity();
+            userAuthTokenEntity.setUserEntity(userEntity);
+            final ZonedDateTime now=ZonedDateTime.now();
+            final ZonedDateTime expiresAt=now.plusHours(8);
+            userAuthTokenEntity.setUuid(UUID.randomUUID().toString());
+            userAuthTokenEntity.setAccessToken(jwtTokenProvider.generateToken(userEntity.getUuid(),now,expiresAt));
+
+            userAuthTokenEntity.setLoginAt(now);
+            userAuthTokenEntity.setExpiresAt(expiresAt);
+            userDao.createAuthToken(userAuthTokenEntity);
+            return userAuthTokenEntity;
+        }
+        else{
+            throw new AuthenticationFailedException("ATH-002","Password failed");
+        }
+    }
 }
