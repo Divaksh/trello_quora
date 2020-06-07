@@ -64,4 +64,12 @@ public class UserBusinessService {
             throw new AuthenticationFailedException("ATH-002","Password failed");
         }
     }
+    @Transactional(propagation = Propagation.REQUIRED)
+    public UserAuthTokenEntity authenticateUserRequest( final String accessToken) throws SignUpRestrictedException {
+        String requestDetailsString="sign-out-request@ID " + "no-id-required";
+        UserAuthTokenEntity userSignedIn= authorizationService.authenticateUserRequest(accessToken,requestDetailsString);
+        userSignedIn.setLogoutAt(ZonedDateTime.now());
+        userDao.updateUserStatus(userSignedIn);
+        return userSignedIn;
+    }
 }
