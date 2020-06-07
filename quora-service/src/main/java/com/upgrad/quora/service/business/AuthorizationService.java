@@ -82,6 +82,28 @@ public class AuthorizationService {
         }
         return userSignedIn;
     }
+    public UserAuthTokenEntity authenticateAdminRequest(final String accessToken,final String requestDetailsString) throws AuthenticationFailedException, UserNotFoundException {
+        UserRequestDetails userRequestDetails = getUserRequestDetails(accessToken, requestDetailsString);
+        UserAuthTokenEntity userSignedIn = userRequestDetails.getUserAuthTokenEntity();
+        String request = userRequestDetails.getRequest();
+        String searchById = userRequestDetails.getSearchById();
+        boolean notSignedIn = userRequestDetails.isUserNotSignedIn();
+        boolean signedOut = userRequestDetails.isUserSignedOut();
+        if (request.equalsIgnoreCase("delete-user-request")) {
+            if (notSignedIn) {
+                throw new AuthenticationFailedException("ATHR-001", "User has not signed in");
+            } else if (signedOut) {
+                throw new AuthenticationFailedException("ATHR-002", "User is signed out");
+            } else if (!userSignedIn.getUserEntity().getRole().equalsIgnoreCase("admin")) {
+                throw new AuthenticationFailedException("ATHR-003", "Unauthorized Access, Entered user is not an admin");
+            }
+            UserEntity deleteUser = userDao.fetchUserDetails(searchById);
+            if (deleteUser == null) {
+                throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
+            }
+        }
+        return userSignedIn;
+    }
     public UserRequestDetails getUserRequestDetails(final String accessToken,final String requestDetailsString){
         String [] requestDetails =requestDetailsString.split("@ID ",2);
         String request=requestDetails[0];
