@@ -66,5 +66,13 @@ public class UserController {
         headers.add("access-token", userAuthToken.getAccessToken());
         return new ResponseEntity<>(signinResponse, headers, HttpStatus.OK);
     }
-
+    @RequestMapping(method = RequestMethod.POST , path="/user/signout" ,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<SignoutResponse> userSignOut(@RequestHeader("authorization")  final String authorization) throws SignUpRestrictedException{
+        String accessToken=authorization.split("Bearer ")[1];
+        UserAuthTokenEntity userSignedIn =  userBusinessService.authenticateUserRequest(accessToken);
+        UserEntity user = userSignedIn.getUserEntity();
+        SignoutResponse signoutResponse = new SignoutResponse().id(user.getUuid())
+                .message("SIGNED OUT SUCCESSFULLY");
+        return new ResponseEntity<>(signoutResponse, HttpStatus.OK);
+    }
 }
