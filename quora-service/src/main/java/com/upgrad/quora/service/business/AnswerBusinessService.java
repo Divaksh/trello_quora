@@ -30,7 +30,9 @@ public class AnswerBusinessService {
     @Autowired
     QuestionDao questionDao;
 
-    /** This method is to create the answer
+    /**
+     * This method is to create the answer
+     *
      * @param answerEntity
      * @param questionId
      * @param authorization
@@ -54,7 +56,9 @@ public class AnswerBusinessService {
         return answerDao.createAnswer(answerEntity);
     }
 
-    /** This method is to edit the answer content.
+    /**
+     * This method is to edit the answer content.
+     *
      * @param answerEntity
      * @param authorization
      * @return AnswerEntity object is returned after persisting in the database.
@@ -84,7 +88,8 @@ public class AnswerBusinessService {
         return answerDao.editAnswerContent(answerEntity);
     }
 
-    /** This method is to delete the answer
+    /**
+     * This method is to delete the answer
      *
      * @param answerId
      * @param authorization
@@ -111,7 +116,8 @@ public class AnswerBusinessService {
         answerDao.userAnswerDelete(answerId);
     }
 
-    /** This method is to get all the answers of a particular question by questionId.
+    /**
+     * This method is to get all the answers of a particular question by questionId.
      *
      * @param questionId
      * @param authorization
@@ -131,7 +137,8 @@ public class AnswerBusinessService {
         return answerDao.getAllAnswersToQuestion(questionId);
     }
 
-    /**This method is to authorize the user.
+    /**
+     * This method is to authorize the user.
      *
      * @param userAuthEntity
      * @param log_out_ERROR

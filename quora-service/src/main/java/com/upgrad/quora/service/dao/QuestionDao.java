@@ -18,6 +18,7 @@ public class QuestionDao {
 
     /**
      * This method is to create question
+     *
      * @param questionEntity
      * @return QuestionEntity
      */
@@ -28,6 +29,7 @@ public class QuestionDao {
 
     /**
      * This method is to get all questions based on userId
+     *
      * @param uuid
      * @return List of QuestionEntity
      */
@@ -41,6 +43,7 @@ public class QuestionDao {
 
     /**
      * This method is to get all questions
+     *
      * @return List of QuestionEntity
      */
     public List<QuestionEntity> getAllQuestions() {
@@ -54,6 +57,7 @@ public class QuestionDao {
 
     /**
      * This method is to update the question
+     *
      * @param questionEntity
      * @return QuestionEntity
      */
@@ -63,6 +67,7 @@ public class QuestionDao {
 
     /**
      * This method is to delete the question
+     *
      * @param questionEntity
      */
     public void deleteQuestion(final QuestionEntity questionEntity) {
