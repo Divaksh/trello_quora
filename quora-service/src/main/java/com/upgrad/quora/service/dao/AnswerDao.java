@@ -46,4 +46,13 @@ public class AnswerDao {
             return null;
         }
     }
+
+    /**
+     * delete answer
+     * @param answerId
+     */
+    public void userAnswerDelete(final String answerId) {
+        AnswerEntity answerEntity = getAnswerByUuid(answerId);
+        entityManager.remove(answerEntity);
+    }
 }

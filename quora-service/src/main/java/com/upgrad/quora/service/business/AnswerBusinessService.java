@@ -84,6 +84,32 @@ public class AnswerBusinessService {
         return answerDao.editAnswerContent(answerEntity);
     }
 
+    /**
+     *
+     * @param answerId
+     * @param authorization
+     * @throws AuthorizationFailedException
+     * @throws AnswerNotFoundException
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteAnswer(final String answerId, final String authorization) throws AuthorizationFailedException, AnswerNotFoundException {
+        UserAuthTokenEntity userAuthEntity = userDao.getUserAuthToken(authorization);
+        authorizeUser(userAuthEntity, "User is signed out.Sign in first to delete an answer");
+
+        // Validate if requested answer exist or not
+        if (answerDao.getAnswerByUuid(answerId) == null) {
+            throw new AnswerNotFoundException("ANS-001", "Entered answer uuid does not exist");
+        }
+
+        // Validate if current user is the owner of requested answer or the role of user is not nonadmin
+        if (!userAuthEntity.getUserEntity().getUuid().equals(answerDao.getAnswerByUuid(answerId).getUserEntity().getUuid())) {
+            if (userAuthEntity.getUserEntity().getRole().equals("nonadmin")) {
+                throw new AuthorizationFailedException("ATHR-003", "Only the answer owner or admin can delete the answer");
+            }
+        }
+
+        answerDao.userAnswerDelete(answerId);
+    }
 
     /**
      *

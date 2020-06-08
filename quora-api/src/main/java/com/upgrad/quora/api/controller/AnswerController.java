@@ -79,6 +79,31 @@ public class AnswerController {
     }
 
     /**
+     * This answer controller method handles the delete a answer request or the answer/delete/answerId endpoint.
+     * This endpoint can be accessed by any user who is authenticated by the quora application
+     * But only the owner of the answer and  admin can delete the answer
+     *
+     * @param answerId
+     * @param accessToken
+     * @return ResponseEntity
+     * @throws AuthorizationFailedException
+     * @throws AnswerNotFoundException
+     */
+    @RequestMapping(method = RequestMethod.DELETE, path = "/answer/delete/{answerId}",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AnswerDeleteResponse> deleteAnswer(@PathVariable("answerId") final String answerId,
+                                                             @RequestHeader("authorization") final String accessToken) throws AuthorizationFailedException, AnswerNotFoundException {
+        String token = getAccessToken(accessToken);
+
+        // Delete requested answer
+        answerBusinessService.deleteAnswer(answerId, token);
+
+        // Return response
+        AnswerDeleteResponse answerDeleteResponse = new AnswerDeleteResponse().id(answerId).status("ANSWER DELETED");
+        return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse, HttpStatus.OK);
+    }
+
+    /**
      * User can give only Access token or Bearer <accesstoken> as input.
      *
      * @param accessToken
