@@ -11,19 +11,16 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 //@Entity annotation defining that this class should be implemented as table in the db
-@Entity
-
 //@Table annotation giving the name and scheme for the entity in the db
-@Table(name = "users", schema = "quora")
-
 //@NamedQueries annotation defines queries which will be executed on this entity to help the corresponding dao
 
+@Entity
+@Table(name = "users")
 @NamedQueries(
         {
                 @NamedQuery(name = "userByUuid", query = "select u from UserEntity u where u.uuid = :uuid"),
                 @NamedQuery(name = "userByEmail", query = "select u from UserEntity u where u.email =:email"),
-                @NamedQuery(name="checkUserName",query= "select u from UserEntity u where u.userName =:username")
-
+                @NamedQuery(name = "userByUserName", query= "select u from UserEntity u where u.userName =:userName")
         }
 )
 
@@ -57,9 +54,9 @@ public class UserEntity implements Serializable{
     @Size(max = 30)
     private String lastName;
 
-    @Column(name="username")
+    @Column(name = "username")
     @NotNull
-    @Size(max=30)
+    @Size(max = 30)
     private  String userName;
 
     @Column(name = "email")
@@ -70,7 +67,7 @@ public class UserEntity implements Serializable{
     //@ToStringExclude
     @Column(name = "password")
     @NotNull
-    @Size(max=255)
+    @Size(max = 255)
     private String password;
 
     @Column(name = "salt")
@@ -79,21 +76,21 @@ public class UserEntity implements Serializable{
     //@ToStringExclude
     private String salt;
 
-    @Column(name="country")
-    @Size(max=30)
+    @Column(name = "country")
+    @Size(max = 30)
     private String country;
 
-    @Column(name="aboutme")
-    @Size(max=50)
+    @Column(name = "aboutme")
+    @Size(max = 50)
     private String aboutMe;
 
-    @Column(name="dob")
-    @Size(max=30)
+    @Column(name = "dob")
+    @Size(max = 30)
     private String dob;
 
 
-    @Column(name="role")
-    @Size(max=30)
+    @Column(name = "role")
+    @Size(max = 30)
     private String role;
 
     @Column(name = "contactnumber")

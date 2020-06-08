@@ -14,18 +14,16 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 //@Entity annotation defining that this class should be implemented as table in the db
-@Entity
-
 //@Table annotation giving the name and scheme for the entity in the db
-@Table(name = "question", schema = "quora")
-
 //@NamedQueries annotation defines queries which will be executed on this entity to help the corresponding dao
 
+@Entity
+@Table(name = "question")
 @NamedQueries(
         {
-                @NamedQuery(name = "getAllQuestions", query = "select q from QuestionEntity q"),
-                @NamedQuery(name = "getQuestionById", query = "select q from QuestionEntity q where q.uuid=:questionId"),
-                @NamedQuery(name = "getAllQuestionsByUser", query = "select q from QuestionEntity q where q.userEntity=:userEntity")
+                @NamedQuery(name = "allQuestionsByUserId", query = "select q from QuestionEntity q where q.id = :id"),
+                @NamedQuery(name = "questionByQUuid", query = "select q from QuestionEntity q where q.uuid =:uuid"),
+                @NamedQuery(name = "allQuestions", query = "select q from QuestionEntity q")
         }
 )
 public class QuestionEntity implements Serializable {
@@ -47,24 +45,24 @@ public class QuestionEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name="uuid")
+    @Column(name = "uuid")
     @NotNull
-    @Size(max=200)
+    @Size(max = 200)
     private String uuid;
 
 
-    @Column(name="content")
+    @Column(name = "content")
     @NotNull
-    @Size(max=500)
+    @Size(max = 500)
     private String content;
 
-    @Column(name="date")
+    @Column(name = "date")
     @NotNull
     private ZonedDateTime date;
 
-    @ManyToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name="user_id")
-    @OnDelete(action= OnDeleteAction.CASCADE)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @NotNull
     private UserEntity userEntity;
 

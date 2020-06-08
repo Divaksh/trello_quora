@@ -5,6 +5,7 @@ import com.upgrad.quora.api.model.SigninResponse;
 import com.upgrad.quora.api.model.SignoutResponse;
 import com.upgrad.quora.api.model.SignupUserRequest;
 import com.upgrad.quora.api.model.SignupUserResponse;
+import com.upgrad.quora.service.business.AuthenticationService;
 import com.upgrad.quora.service.business.UserBusinessService;
 import com.upgrad.quora.service.entity.UserAuthTokenEntity;
 import com.upgrad.quora.service.entity.UserEntity;
@@ -29,6 +30,9 @@ public class UserController {
 
     @Autowired
     private UserBusinessService userBusinessService;
+    
+    @Autowired
+    private AuthenticationService authenticationService;
 
     //controller method for handling the userSignUp endpoint/request
     //receives the SignupUserRequest object and returns the SignupUserResponse as a Response Entity
@@ -36,10 +40,8 @@ public class UserController {
     //creates the new UserEntity by passing on the user info to the UserBusinessService business logic layer
     //returns the appropriate message along with the id of the UserEntity created in the response entity,and also httpstatus
 
-
-    @RequestMapping(method = RequestMethod.POST, path = "user/signup", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SignupUserResponse> userSignup(final SignupUserRequest signupUserRequest) throws SignUpRestrictedException {
-        userBusinessService.validateUserSignUpRequest(signupUserRequest.getUserName(),signupUserRequest.getEmailAddress());
+    @RequestMapping(method = RequestMethod.POST, path = "/user/signup", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<SignupUserResponse> signup(final SignupUserRequest signupUserRequest) throws SignUpRestrictedException {
         final UserEntity userEntity = new UserEntity();
         userEntity.setUuid(UUID.randomUUID().toString());
         userEntity.setFirstName(signupUserRequest.getFirstName());
@@ -52,10 +54,13 @@ public class UserController {
         userEntity.setDob(signupUserRequest.getDob());
         userEntity.setContactNumber(signupUserRequest.getContactNumber());
         userEntity.setRole("nonadmin");
+        userEntity.setSalt("1234abc");
 
-        final UserEntity createdUserEntity = userBusinessService.signupUser(userEntity);
-        SignupUserResponse userResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("USER SUCCESSFULLY REGISTERED");
-        return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+        final UserEntity createdUserEntity = userBusinessService.signup(userEntity);
+
+        //Status for successful user creation
+        SignupUserResponse signupUserResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("USER SUCCESSFULLY REGISTERED");
+        return new ResponseEntity<SignupUserResponse>(signupUserResponse, HttpStatus.CREATED);
     }
 
     //controller method for the userSiginIn endpoint/request
@@ -64,21 +69,25 @@ public class UserController {
     //successfully validates and then creates accesstoken for the user by accessing the userBusinessservice layer
     //returns the accesstoken and the appropriate message in the response entity
 
-    @RequestMapping(method = RequestMethod.POST, path = "/user/signin", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SigninResponse> userSignIn(@RequestHeader("authorization") final String authorization) throws AuthenticationFailedException {
-        byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
+   @RequestMapping(method = RequestMethod.POST,path = "/user/signin", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<SigninResponse> signin(@RequestHeader("authorization") final String authorization) throws AuthenticationFailedException {
+
+        byte[] decode= Base64.getDecoder().decode(authorization.split("Basic ")[1]);
+
         String decodedText = new String(decode);
         String[] decodedArray = decodedText.split(":");
 
-        UserAuthTokenEntity userAuthToken = userBusinessService.authenticate(decodedArray[0], decodedArray[1]);
-
+        UserAuthTokenEntity userAuthToken = authenticationService.authenticate(decodedArray[0],decodedArray[1]);
         UserEntity user = userAuthToken.getUserEntity();
 
-        SigninResponse signinResponse = new SigninResponse().id(user.getUuid())
-                .message("SIGNED IN SUCCESSFULLY");
+        // Message for successful signin
+        SigninResponse signinResponse = new SigninResponse().id(user.getUuid()).message("SIGNED IN SUCCESSFULLY");
+
         HttpHeaders headers = new HttpHeaders();
-        headers.add("access-token", userAuthToken.getAccessToken());
-        return new ResponseEntity<>(signinResponse, headers, HttpStatus.OK);
+        headers.add("access-token",userAuthToken.getAccessToken());
+
+        return new ResponseEntity<SigninResponse>(signinResponse,headers, HttpStatus.OK);
+
     }
 
     //controller method for the UserSignOut endpoint/request
@@ -86,15 +95,13 @@ public class UserController {
     //authenticates user request-throws the signuprestrictedexception
     //if user is logged in then logs him out and sends the signoutresponse with the appropriate message and http status
 
+    @RequestMapping(method=RequestMethod.POST, path="/user/signout", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<SignoutResponse> signout(@RequestHeader("authorization") final String authorization) throws SignOutRestrictedException {
+        final UserEntity userEntity = userBusinessService.signout(authorization);
 
+        //Message for successful signout
+        SignoutResponse signoutResponse = new SignoutResponse().id(userEntity.getUuid()).message("SIGNED OUT SUCCESSFULLY");
 
-    @RequestMapping(method = RequestMethod.POST , path="/user/signout" ,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SignoutResponse> userSignOut(@RequestHeader("authorization")  final String authorization) throws SignUpRestrictedException{
-        String accessToken=authorization.split("Bearer ")[1];
-        UserAuthTokenEntity userSignedIn =  userBusinessService.authenticateUserRequest(accessToken);
-        UserEntity user = userSignedIn.getUserEntity();
-        SignoutResponse signoutResponse = new SignoutResponse().id(user.getUuid())
-                .message("SIGNED OUT SUCCESSFULLY");
-        return new ResponseEntity<>(signoutResponse, HttpStatus.OK);
+        return new ResponseEntity<SignoutResponse>(signoutResponse,HttpStatus.OK);
     }
 }

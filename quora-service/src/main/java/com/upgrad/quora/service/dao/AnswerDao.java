@@ -14,9 +14,9 @@ public class AnswerDao {
     private EntityManager entityManager;
 
     /**
-     * create a answer
+     * This method is to create an answer
      * @param answerEntity
-     * @return
+     * @return AnswerEntity
      */
     public AnswerEntity createAnswer(AnswerEntity answerEntity) {
         entityManager.persist(answerEntity);
@@ -24,18 +24,18 @@ public class AnswerDao {
     }
 
     /**
-     * edit answer
+     * This method is to edit the answer content.
      * @param answerEntity
-     * @return
+     * @return AnswerEntity
      */
     public AnswerEntity editAnswerContent(final AnswerEntity answerEntity) {
         return entityManager.merge(answerEntity);
     }
 
     /**
-     * get answer based on userId
+     * This method is to get answer based on userId
      * @param questionId
-     * @return
+     * @return AnswerEntity
      */
     public AnswerEntity getAnswerByUuid(String questionId) {
         try {
@@ -48,9 +48,9 @@ public class AnswerDao {
     }
 
     /**
-     * get all answer based on questionId
+     * This method is to get all answer based on questionId
      * @param questionId
-     * @return
+     * @return List of AnswerEntity
      */
     public List<AnswerEntity> getAllAnswersToQuestion(final String questionId) {
         try {
@@ -61,7 +61,7 @@ public class AnswerDao {
     }
 
     /**
-     * delete answer
+     * This method is to delete the answer by answerId
      * @param answerId
      */
     public void userAnswerDelete(final String answerId) {

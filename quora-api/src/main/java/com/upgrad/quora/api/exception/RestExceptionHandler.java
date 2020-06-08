@@ -8,24 +8,18 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+//global exception handler
 @ControllerAdvice
-public class RestExceptionHandler {    //global exception handler
+public class RestExceptionHandler {
 
+
+    
     //handles the AuthenticationFailedException
-    //is invoked when the handled exception is thrown in the application
-    //returns the response entity with appropriate error response
-    //also includes the http status code in the response
-    @ExceptionHandler(AuthenticationFailedException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(AuthenticationFailedException exc, WebRequest request) {
-        if(exc.getErrorMessage().equalsIgnoreCase("User has not signed in")) {
-            return new ResponseEntity<ErrorResponse>(
-                    new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.FORBIDDEN);
-        }else if(exc.getErrorMessage().equalsIgnoreCase("User is signed out.Sign in first to get user details")){
-            return new ResponseEntity<ErrorResponse>(
-                    new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.UNAUTHORIZED);
-        }else return new ResponseEntity<ErrorResponse>(
-                new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.FORBIDDEN);
-
+    @ExceptionHandler(AuthorizationFailedException.class)
+    public ResponseEntity<ErrorResponse> authorizationFailedException(AuthorizationFailedException exe, WebRequest request){
+        return new ResponseEntity<ErrorResponse>(
+                new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.FORBIDDEN
+        );
     }
 
     //handles the SignUpRestrictedException
@@ -58,6 +52,7 @@ public class RestExceptionHandler {    //global exception handler
         );
     }
 
+
     //handles the InvalidQuestionException
     //is invoked when the handled exception is thrown in the application
     //returns the response entity with appropriate error response
@@ -70,6 +65,7 @@ public class RestExceptionHandler {    //global exception handler
         );
     }
 
+
     //handles the AnswerNotFoundException
     //is invoked when the handled exception is thrown in the application
     //returns the response entity with appropriate error response
@@ -79,6 +75,14 @@ public class RestExceptionHandler {    //global exception handler
     public ResponseEntity<ErrorResponse> answerNotFoundException(AnswerNotFoundException  exc, WebRequest request) {
         return new ResponseEntity<ErrorResponse>(
                 new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.NOT_FOUND
+        );
+    }
+
+    //handles the SignOutRestrictedException
+    @ExceptionHandler(SignOutRestrictedException.class)
+    public ResponseEntity<ErrorResponse> signoutRestrictedException(SignOutRestrictedException exe, WebRequest request) {
+        return new ResponseEntity<ErrorResponse>(
+                new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
         );
     }
 }

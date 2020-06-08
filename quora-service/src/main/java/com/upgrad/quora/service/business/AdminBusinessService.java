@@ -14,30 +14,61 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminBusinessService {
 
     @Autowired
-    private UserDao userDao;                         //instance of userDao
+    private UserDao userDao; //instance of userDao
 
     @Autowired
-    private AuthorizationService authorizationService;              //instance of AuthorizationService
-
+    private PasswordCryptographyProvider cryptographyProvider;
 
     //method to authenticate the deleteUser endpoint/request
     //receives the accestokenand the requestdetails string from admincontroller
     //calls the authorizationservice method to authenticate the user delete request
     //throws the authorizationFailedException and usernotfoundexception
     //returns the userauthtoken entity
-
-    public UserAuthTokenEntity authenticateAdminRequest( final String accessToken,final String requestDetailsString) throws AuthenticationFailedException,UserNotFoundException {
-        return authorizationService.authenticateAdminRequest(accessToken,requestDetailsString);
+    
+    @Transactional(propagation = Propagation.REQUIRED)
+    public UserEntity deleteUser(final String userUuid, final String authorizationToken) throws AuthorizationFailedException,
+            UserNotFoundException {
+        UserAuthTokenEntity userAuthTokenEntity = userDao.getUserAuthToken(authorizationToken);
+        if (userAuthTokenEntity == null) {
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        if (userAuthTokenEntity.getLogoutAt() != null) {
+            throw new AuthorizationFailedException("ATHR-002", "User is signed out");
+        }
+        if ("nonadmin".equals(userAuthTokenEntity.getUserEntity().getRole())) {
+            throw new AuthorizationFailedException("ATHR-003", "Unauthorized Access, Entered user is not an admin");
+        }
+        UserEntity userEntity = userDao.getUser(userUuid);
+        if (userEntity == null) {
+            throw new UserNotFoundException("USR-001", "User with entered uuid to be deleted does not exist");
+        }
+        userDao.deleteUser(userEntity);
+        return userEntity;
     }
 
-    //method to process the deleteUser request after the same is authenticated
-    //deletes the user corresponding to the userId received by this metod
-    //interacts with the userDao methods to delete the concerned user details
-    //returns the deleted user details
+    //method to process the createUser request
     @Transactional(propagation = Propagation.REQUIRED)
-    public UserEntity deleteUser(final String userId) throws UserNotFoundException {
-        UserEntity userToBeDeleted =userDao.fetchUserDetails(userId);
-        userDao.deleteUser(userToBeDeleted);
-        return userToBeDeleted;
+    public UserEntity createUser(final UserEntity userEntity) throws SignUpRestrictedException {
+
+        UserEntity user = userDao.getUserByUserName(userEntity.getUserName());
+
+        // Check if username already exists
+        if(user != null) {
+            throw new SignUpRestrictedException("SGR-001","Try any other Username, this Username has already been taken");
+        }
+
+        // Check if email already exists
+        UserEntity userEmail = userDao.getUserByEmail(userEntity.getEmail());
+
+        if(userEmail != null) {
+            throw new SignUpRestrictedException("SGR-002","This user has already been registered, try with any other emailId");
+        }
+
+        //Encrypt password and add salt
+        String[] encryptedText = cryptographyProvider.encrypt(userEntity.getPassword());
+        userEntity.setSalt(encryptedText[0]);
+        userEntity.setPassword(encryptedText[1]);
+
+        return userDao.createUser(userEntity);
     }
 }

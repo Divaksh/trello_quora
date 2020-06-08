@@ -29,15 +29,16 @@ public class AdminController {
     //returns the response entity obj after creating the userdeleteresponse with the above info
 
 
-
-    @RequestMapping(method = RequestMethod.DELETE, path="admin/user/{userId}",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<UserDeleteResponse> deleteUser(@RequestHeader("authorization")  final String authorization, @PathVariable("userId") final String userId) throws AuthenticationFailedException, UserNotFoundException {
-        String accessToken=authorization.split("Bearer ")[1];
-        String requestDetailsString = "delete-user-request@ID " + userId;
-        UserAuthTokenEntity userSignedIn =  adminBusinessService.authenticateAdminRequest(accessToken,requestDetailsString);
-        UserEntity deletedUser =adminBusinessService.deleteUser(userId);
-        UserDeleteResponse userDeleteResponse= new UserDeleteResponse().id(deletedUser.getUuid()).status("USER SUCCESSFULLY DELETED");
-
-        return new ResponseEntity<UserDeleteResponse>(userDeleteResponse,HttpStatus.OK);
+    @RequestMapping(method = RequestMethod.DELETE, path = "/admin/user/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UserDeleteResponse> deleteUser(@PathVariable("userId") final String userUuid,
+                                                         @RequestHeader("authorization") final String accessToken) throws UserNotFoundException, AuthorizationFailedException {
+        String token = accessToken;
+        // if header contain "Bearer " key then truncate it"
+        if (accessToken.startsWith("Bearer ")) {
+            token = (accessToken.split("Bearer "))[1];
+        }
+        final UserEntity userEntity = adminBusinessService.deleteUser(userUuid, token);
+        UserDeleteResponse userDetailsResponse = new UserDeleteResponse().id(userEntity.getUuid()).status("USER SUCCESSFULLY DELETED");
+        return new ResponseEntity<UserDeleteResponse>(userDetailsResponse, HttpStatus.OK);
     }
 }

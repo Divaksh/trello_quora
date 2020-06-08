@@ -14,22 +14,18 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 //@Entity annotation defining that this class should be implemented as table in the db
-
-@Entity
-
 //@Table annotation giving the name and scheme for the entity in the db
-
-@Table(name = "answer", schema = "quora")
-
 //@NamedQueries annotation defines queries which will be executed on this entity to help the corresponding dao
 
+@Entity
+@Table(name = "answer")
 @NamedQueries(
         {
-                @NamedQuery(name = "getAnswerById", query = "select a from AnswerEntity a where a.uuid=:answerId"),
-                @NamedQuery(name = "getAllAnswersToAQuestion", query = "select a from AnswerEntity a where a.questionEntity=:questionEntity")
+                @NamedQuery(name = "answerEntityByUuid", query = "select a from AnswerEntity a where a.uuid = :uuid"),
+                @NamedQuery(name = "answersByQuestionId", query = "select a from AnswerEntity a where a.questionEntity.uuid = :uuid")
         }
 )
-public class AnswerEntity implements Serializable {
+public class AnswerEntity {
 
 
     //attributes of this class which will be represented as columns in the corresponding table in the db
@@ -47,30 +43,30 @@ public class AnswerEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name="uuid")
+    @Column(name = "uuid")
     @NotNull
-    @Size(max=200)
+    @Size(max = 200)
     private String uuid;
 
 
-    @Column(name="ans")
+    @Column(name = "ans")
     @NotNull
     @Size(max=255)
     private String answer;
 
-    @Column(name="date")
+    @Column(name = "date")
     @NotNull
     private ZonedDateTime date;
 
-    @ManyToOne(fetch=FetchType.EAGER)
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="user_id")
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "user_id")
     @NotNull
     private UserEntity userEntity;
 
-    @ManyToOne(fetch=FetchType.EAGER)
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="question_id")
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "question_id")
     @NotNull
     private QuestionEntity questionEntity;
 
@@ -122,21 +118,5 @@ public class AnswerEntity implements Serializable {
 
     public void setQuestionEntity(QuestionEntity questionEntity) {
         this.questionEntity = questionEntity;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return new EqualsBuilder().append(this, obj).isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(this).hashCode();
-    }
-
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 }

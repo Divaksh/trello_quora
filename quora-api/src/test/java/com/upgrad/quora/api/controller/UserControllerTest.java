@@ -10,6 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -40,7 +41,7 @@ public class UserControllerTest {
     //This test case passes when you try to signout but the JWT token entered does not exist in the database.
     @Test
     public void signoutWithNonExistingAccessToken() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.post("/user/signout").header("authorization", "Bearer non_existing_access_token"))
+        mvc.perform(MockMvcRequestBuilders.post("/user/signout").header("authorization", "non_existing_access_token"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(MockMvcResultMatchers.jsonPath("code").value("SGR-001"));
     }

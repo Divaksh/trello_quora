@@ -17,9 +17,9 @@ public class QuestionDao {
     private EntityManager entityManager;
 
     /**
-     * create question
+     * This method is to create question
      * @param questionEntity
-     * @return
+     * @return QuestionEntity
      */
     public QuestionEntity createQuestion(QuestionEntity questionEntity) {
         entityManager.persist(questionEntity);
@@ -27,9 +27,9 @@ public class QuestionDao {
     }
 
     /**
-     * get all questions based on userId
+     * This method is to get all questions based on userId
      * @param uuid
-     * @return
+     * @return List of QuestionEntity
      */
     public List<QuestionEntity> getAllQuestionsByUser(final String uuid) {
         try {
@@ -40,8 +40,8 @@ public class QuestionDao {
     }
 
     /**
-     * get all questions
-     * @return
+     * This method is to get all questions
+     * @return List of QuestionEntity
      */
     public List<QuestionEntity> getAllQuestions() {
         try {
@@ -53,16 +53,16 @@ public class QuestionDao {
     }
 
     /**
-     * update question
+     * This method is to update the question
      * @param questionEntity
-     * @return
+     * @return QuestionEntity
      */
     public QuestionEntity updateQuestion(final QuestionEntity questionEntity) {
         return entityManager.merge(questionEntity);
     }
 
     /**
-     * delete question
+     * This method is to delete the question
      * @param questionEntity
      */
     public void deleteQuestion(final QuestionEntity questionEntity) {
@@ -70,7 +70,7 @@ public class QuestionDao {
     }
 
     /**
-     * Method to get the QuestionEntity by uuid
+     * This method is to get the QuestionEntity by uuid
      *
      * @param questionId
      * @return QuestionEntity

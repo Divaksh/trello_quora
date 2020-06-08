@@ -4,6 +4,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,18 +14,15 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 
+
 //@Entity annotation defining that this class should be implemented as table in the db
-
-@Entity
-
 //@Table annotation giving the name and scheme for the entity in the db
-
-@Table(name = "user_auth", schema = "quora")
-
 //@NamedQueries annotation defines queries which will be executed on this entity to help the corresponding dao
 
+@Entity
+@Table(name = "user_auth")
 @NamedQueries({
-        @NamedQuery(name = "userStatusByAccessToken" , query = "select ut from UserAuthTokenEntity ut where ut.accessToken = :accessToken ")
+        @NamedQuery(name = "userAuthTokenByAccessToken", query = "select ut from UserAuthTokenEntity ut where ut.accessToken = :accessToken ")
 })
 public class UserAuthTokenEntity implements Serializable {
 
@@ -44,12 +43,13 @@ public class UserAuthTokenEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name="uuid")
+    @Column(name = "uuid")
     @NotNull
-    @Size(max=200)
+    @Size(max = 200)
     private String uuid;
 
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id")
     @NotNull
     private UserEntity userEntity;

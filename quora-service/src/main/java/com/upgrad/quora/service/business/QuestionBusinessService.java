@@ -23,6 +23,12 @@ public class QuestionBusinessService {
     @Autowired
     private QuestionDao questionDao;
 
+    /** This method is to create the question
+     * @param questionEntity
+     * @param accessToken
+     * @throws AuthorizationFailedException
+     * @return QuestionEntity
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public QuestionEntity createQuestion(QuestionEntity questionEntity, String accessToken) throws AuthorizationFailedException {
         UserAuthTokenEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
@@ -32,12 +38,23 @@ public class QuestionBusinessService {
         return questionDao.createQuestion(questionEntity);
     }
 
+    /** This method is to get all the questions
+     * @param token
+     * @throws AuthorizationFailedException
+     * @return List of QuestionEntity
+     */
     public List<QuestionEntity> getAllQuestions(String token) throws AuthorizationFailedException {
         UserAuthTokenEntity userAuthEntity = userDao.getUserAuthToken(token);
         authorizeUser(userAuthEntity, "User is signed out.Sign in first to get all questions");
         return questionDao.getAllQuestions();
     }
 
+    /** This method is to edit the question
+     * @param questionEntity
+     * @param authorizationToken
+     * @throws AuthorizationFailedException, InvalidQuestionException
+     * @return QuestionEntity
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public QuestionEntity editQuestion(final QuestionEntity questionEntity, final String authorizationToken) throws AuthorizationFailedException, InvalidQuestionException {
         UserAuthTokenEntity userAuthEntity = userDao.getUserAuthToken(authorizationToken);
@@ -60,6 +77,11 @@ public class QuestionBusinessService {
         return questionDao.updateQuestion(questionEntity);
     }
 
+    /** This method is to delete the question by questionId
+     * @param questionId
+     * @param authorization
+     * @throws InvalidQuestionException, AuthorizationFailedException
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteQuestion(final String questionId, final String authorization) throws InvalidQuestionException, AuthorizationFailedException {
         UserAuthTokenEntity userAuthEntity = userDao.getUserAuthToken(authorization);
@@ -78,17 +100,28 @@ public class QuestionBusinessService {
         questionDao.deleteQuestion(questionEntity);
     }
 
+    /** This method is to get all the questions by userId.
+     * @param userId
+     * @param authorizationToken
+     * @throws AuthorizationFailedException, UserNotFoundException
+     * @return List of QuestionEntity
+     */
     public List<QuestionEntity> getAllQuestionsByUser(final String userId, final String authorizationToken) throws AuthorizationFailedException, UserNotFoundException {
         UserAuthTokenEntity userAuthEntity = userDao.getUserAuthToken(authorizationToken);
 
         authorizeUser(userAuthEntity, "User is signed out.Sign in first to get all questions posted by a specific user");
         // Validate if requested user exist or not
-        if (userDao.getUserAuthToken(userId) == null) {
+        if (userDao.getUser(userId) == null) {
             throw new UserNotFoundException("USR-001", "User with entered uuid whose question details are to be seen does not exist");
         }
         return questionDao.getAllQuestionsByUser(userId);
     }
 
+    /** This method is to authorize the user
+     * @param userAuthEntity
+     * @param log_out_ERROR
+     * @throws AuthorizationFailedException
+     */
     private void authorizeUser(UserAuthTokenEntity userAuthEntity, final String log_out_ERROR) throws AuthorizationFailedException {
         if (userAuthEntity == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");

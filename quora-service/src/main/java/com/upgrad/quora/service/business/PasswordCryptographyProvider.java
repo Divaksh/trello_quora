@@ -42,7 +42,7 @@ public class PasswordCryptographyProvider {
      * @return byte array of hashed password.
      */
 
-    public String encrypt(final String password, String salt) {
+    public static String encrypt(final String password, String salt) {
         return bytesToHex(hashPassword(password.toCharArray(), getBase64DecodedStringAsBytes(salt)));
     }
 
