@@ -32,6 +32,12 @@ public class QuestionBusinessService {
         return questionDao.createQuestion(questionEntity);
     }
 
+    public List<QuestionEntity> getAllQuestions(String token) throws AuthorizationFailedException {
+        UserAuthTokenEntity userAuthEntity = userDao.getUserAuthToken(token);
+        authorizeUser(userAuthEntity, "User is signed out.Sign in first to get all questions");
+        return questionDao.getAllQuestions();
+    }
+
 
     private void authorizeUser(UserAuthTokenEntity userAuthEntity, final String log_out_ERROR) throws AuthorizationFailedException {
         // Validate if user is signed in or not

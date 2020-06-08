@@ -52,6 +52,33 @@ public class QuestionController {
         return new ResponseEntity<QuestionResponse>(questionResponse, HttpStatus.CREATED);
     }
 
+    /**
+     *  This question controller method handles the get all questions request or the question/all endpoint.
+     *  This endpoint can be accessed by any user who is authenticated by the quora application
+     *
+     * Receives @param authorization-bearer authorization which contains the accesstoken in the request header
+     * @return ResponseEntity with list of QuestionDetailsResponse
+     * @throws AuthorizationFailedException
+     */
+    @RequestMapping(method = RequestMethod.GET, path = "/question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions(@RequestHeader("authorization") final String accessToken) throws AuthorizationFailedException {
+        String token = getAccessToken(accessToken);
+        // Get all questions
+        List<QuestionEntity> allQuestions = questionService.getAllQuestions(token);
+
+        // Create response
+        List<QuestionDetailsResponse> allQuestionDetailsResponses = new ArrayList<>();
+
+        allQuestions.forEach(questionEntity -> {
+            QuestionDetailsResponse questionDetailsResponse = new QuestionDetailsResponse()
+                    .content(questionEntity.getContent())
+                    .id(questionEntity.getUuid());
+            allQuestionDetailsResponses.add(questionDetailsResponse);
+        });
+        // Return response
+        return new ResponseEntity<List<QuestionDetailsResponse>>(allQuestionDetailsResponses, HttpStatus.OK);
+    }
+
     private String getAccessToken(String accessToken) {
         // if header contain "Bearer " key then truncate it"
         if (accessToken.startsWith("Bearer ")) {
