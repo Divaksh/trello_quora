@@ -22,4 +22,28 @@ public class AnswerDao {
         entityManager.persist(answerEntity);
         return answerEntity;
     }
+
+    /**
+     * edit answer
+     * @param answerEntity
+     * @return
+     */
+    public AnswerEntity editAnswerContent(final AnswerEntity answerEntity) {
+        return entityManager.merge(answerEntity);
+    }
+
+    /**
+     * get answer based on userId
+     * @param questionId
+     * @return
+     */
+    public AnswerEntity getAnswerByUuid(String questionId) {
+        try {
+            return entityManager.createNamedQuery("answerEntityByUuid", AnswerEntity.class).setParameter("uuid", questionId).getSingleResult();
+
+        } catch (NoResultException nre) {
+
+            return null;
+        }
+    }
 }

@@ -55,6 +55,37 @@ public class AnswerBusinessService {
     }
 
     /**
+     * @param answerEntity
+     * @param authorization
+     * @return AnswerEntity object is returned after persisting in the database.
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public AnswerEntity editAnswerContent(final AnswerEntity answerEntity, final String authorization) throws AuthorizationFailedException, AnswerNotFoundException {
+        UserAuthTokenEntity userAuthEntity = userDao.getUserAuthToken(authorization);
+        authorizeUser(userAuthEntity, "User is signed out.Sign in first to edit an answer");
+
+        // Validate if requested answer exist or not
+        AnswerEntity existingAnswerEntity = answerDao.getAnswerByUuid(answerEntity.getUuid());
+        if (existingAnswerEntity == null) {
+            throw new AnswerNotFoundException("ANS-001", "Entered answer uuid does not exist");
+        }
+
+        // Validate if current user is the owner of requested answer
+        UserEntity currentUser = userAuthEntity.getUserEntity();
+        UserEntity answerOwner = answerDao.getAnswerByUuid(answerEntity.getUuid()).getUserEntity();
+        if (currentUser.getId() != answerOwner.getId()) {
+            throw new AuthorizationFailedException("ATHR-003", "Only the answer owner can edit the answer");
+        }
+
+        answerEntity.setId(existingAnswerEntity.getId());
+        answerEntity.setDate(existingAnswerEntity.getDate());
+        answerEntity.setUserEntity(existingAnswerEntity.getUserEntity());
+        answerEntity.setQuestionEntity(existingAnswerEntity.getQuestionEntity());
+        return answerDao.editAnswerContent(answerEntity);
+    }
+
+
+    /**
      *
      * @param userAuthEntity
      * @param log_out_ERROR

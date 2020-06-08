@@ -48,6 +48,37 @@ public class AnswerController {
     }
 
     /**
+     * This answer controller method handles the edit answer request or the answer/edit/answerId endpoint.
+     * This endpoint can be accessed by any user who is authenticated by the quora application
+     * Only the owner of the answer can edit the answer
+     * Receives the answer edit request object
+     *
+     * @param answerEditRequest
+     * @param answerId
+     * @param accessToken
+     * @return ResponseEntity
+     * @throws AuthorizationFailedException
+     * @throws AnswerNotFoundException
+     */
+    @RequestMapping(method = RequestMethod.PUT, path = "/answer/edit/{answerId}",
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AnswerEditResponse> editAnswerContent(final AnswerEditRequest answerEditRequest,
+                                                                @PathVariable("answerId") final String answerId, @RequestHeader("authorization") final String accessToken)
+            throws AuthorizationFailedException, AnswerNotFoundException {
+
+        String token = getAccessToken(accessToken);
+        // Created answer entity for further update
+        AnswerEntity answerEntity = new AnswerEntity();
+        answerEntity.setAnswer(answerEditRequest.getContent());
+        answerEntity.setUuid(answerId);
+
+        // Return response with updated answer entity
+        AnswerEntity updatedAnswerEntity = answerBusinessService.editAnswerContent(answerEntity, token);
+        AnswerEditResponse answerEditResponse = new AnswerEditResponse().id(updatedAnswerEntity.getUuid()).status("ANSWER EDITED");
+        return new ResponseEntity<AnswerEditResponse>(answerEditResponse, HttpStatus.OK);
+    }
+
+    /**
      * User can give only Access token or Bearer <accesstoken> as input.
      *
      * @param accessToken
