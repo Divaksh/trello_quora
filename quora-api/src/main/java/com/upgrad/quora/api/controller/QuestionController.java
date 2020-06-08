@@ -94,20 +94,36 @@ public class QuestionController {
     public ResponseEntity<QuestionEditResponse> editQuestion(final QuestionEditRequest questionEditRequest, @PathVariable("questionId") final String questionId, @RequestHeader("authorization") final String accessToken) throws AuthorizationFailedException, InvalidQuestionException {
 
         String token = getAccessToken(accessToken);
-
-        // Creating question entity for further update
         QuestionEntity questionEntity = new QuestionEntity();
         questionEntity.setContent(questionEditRequest.getContent());
         questionEntity.setUuid(questionId);
 
-        // Return response with updated question entity
         QuestionEntity updatedQuestionEntity = questionService.editQuestion(questionEntity, token);
         QuestionEditResponse questionEditResponse = new QuestionEditResponse().id(updatedQuestionEntity.getUuid()).status("QUESTION EDITED");
         return new ResponseEntity<QuestionEditResponse>(questionEditResponse, HttpStatus.OK);
     }
 
+    /**
+     * This question controller method handles the delete a questions request or the question/delete/questionId endpoint.
+     * This endpoint can be accessed by any user who is authenticated by the quora application
+     * But only the owner of the questionand the admin can delete the question
+     * @param questionId  Question Id to delete from Server
+     * @param accessToken this variable helps to authenticate the user
+     * @return ResponseEntity with QuestionDeleteResponse
+     * @throws AuthorizationFailedException
+     * @throws InvalidQuestionException
+     */
+    @RequestMapping(method = RequestMethod.DELETE, path = "/question/delete/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable("questionId") final String questionId,
+                                                                 @RequestHeader("authorization") final String accessToken) throws AuthorizationFailedException, InvalidQuestionException {
+        String token = getAccessToken(accessToken);
+        questionService.deleteQuestion(questionId, token);
+
+        QuestionDeleteResponse questionDeleteResponse = new QuestionDeleteResponse().id(questionId).status("QUESTION DELETED");
+        return new ResponseEntity<QuestionDeleteResponse>(questionDeleteResponse, HttpStatus.OK);
+    }
+
     private String getAccessToken(String accessToken) {
-        // if header contain "Bearer " key then truncate it"
         if (accessToken.startsWith("Bearer ")) {
             return (accessToken.split("Bearer "))[1];
         }
