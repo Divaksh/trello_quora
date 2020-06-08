@@ -79,6 +79,33 @@ public class QuestionController {
         return new ResponseEntity<List<QuestionDetailsResponse>>(allQuestionDetailsResponses, HttpStatus.OK);
     }
 
+    /**
+     *
+     * This question controller method handles the edit questions request or the question/edit/questionId endpoint.
+     * This endpoint can be accessed by any user who is authenticated by the quora application
+     * Only the owner and the admin can edit the question
+     * Receives the Question edit request object
+     * @param  questionEditRequest
+     * @param  questionId
+     * @param  accessToken
+     * @return ResponseEntity with QuestionEditResponse.
+     */
+    @RequestMapping(method = RequestMethod.PUT, path = "/question/edit/{questionId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionEditResponse> editQuestion(final QuestionEditRequest questionEditRequest, @PathVariable("questionId") final String questionId, @RequestHeader("authorization") final String accessToken) throws AuthorizationFailedException, InvalidQuestionException {
+
+        String token = getAccessToken(accessToken);
+
+        // Creating question entity for further update
+        QuestionEntity questionEntity = new QuestionEntity();
+        questionEntity.setContent(questionEditRequest.getContent());
+        questionEntity.setUuid(questionId);
+
+        // Return response with updated question entity
+        QuestionEntity updatedQuestionEntity = questionService.editQuestion(questionEntity, token);
+        QuestionEditResponse questionEditResponse = new QuestionEditResponse().id(updatedQuestionEntity.getUuid()).status("QUESTION EDITED");
+        return new ResponseEntity<QuestionEditResponse>(questionEditResponse, HttpStatus.OK);
+    }
+
     private String getAccessToken(String accessToken) {
         // if header contain "Bearer " key then truncate it"
         if (accessToken.startsWith("Bearer ")) {
