@@ -95,12 +95,37 @@ public class AnswerController {
                                                              @RequestHeader("authorization") final String accessToken) throws AuthorizationFailedException, AnswerNotFoundException {
         String token = getAccessToken(accessToken);
 
-        // Delete requested answer
         answerBusinessService.deleteAnswer(answerId, token);
-
-        // Return response
         AnswerDeleteResponse answerDeleteResponse = new AnswerDeleteResponse().id(answerId).status("ANSWER DELETED");
         return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse, HttpStatus.OK);
+    }
+
+    /**
+     * This answer controller method handles the get all answers to a question request or the answer/all/questionId endpoint.
+     * This endpoint can be accessed by any user who is authenticated by the quora application
+     *
+     * @param questionId
+     * @param accessToken
+     * @return RequestMapping
+     * @throws AuthorizationFailedException
+     * @throws InvalidQuestionException
+     */
+    @RequestMapping(method = RequestMethod.GET, path = "/answer/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(@PathVariable("questionId") final String questionId,
+                                                                               @RequestHeader("authorization") final String accessToken) throws AuthorizationFailedException, InvalidQuestionException {
+        String token = getAccessToken(accessToken);
+        List<AnswerEntity> allAnswers = answerBusinessService.getAllAnswersToQuestion(questionId, token);
+        List<AnswerDetailsResponse> allAnswersResponse = new ArrayList<AnswerDetailsResponse>();
+
+        allAnswers.forEach(answers -> {
+            AnswerDetailsResponse answerDetailsResponse = new AnswerDetailsResponse()
+                    .answerContent(answers.getAnswer())
+                    .questionContent(answers.getQuestionEntity().getContent())
+                    .id(answers.getUuid());
+            allAnswersResponse.add(answerDetailsResponse);
+        });
+
+        return new ResponseEntity<List<AnswerDetailsResponse>>(allAnswersResponse, HttpStatus.OK);
     }
 
     /**

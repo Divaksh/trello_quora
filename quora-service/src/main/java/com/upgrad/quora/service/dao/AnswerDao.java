@@ -48,6 +48,19 @@ public class AnswerDao {
     }
 
     /**
+     * get all answer based on questionId
+     * @param questionId
+     * @return
+     */
+    public List<AnswerEntity> getAllAnswersToQuestion(final String questionId) {
+        try {
+            return entityManager.createNamedQuery("answersByQuestionId", AnswerEntity.class).setParameter("uuid", questionId).getResultList();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    /**
      * delete answer
      * @param answerId
      */
