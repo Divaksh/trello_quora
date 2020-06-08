@@ -78,6 +78,17 @@ public class QuestionBusinessService {
         questionDao.deleteQuestion(questionEntity);
     }
 
+    public List<QuestionEntity> getAllQuestionsByUser(final String userId, final String authorizationToken) throws AuthorizationFailedException, UserNotFoundException {
+        UserAuthTokenEntity userAuthEntity = userDao.getUserAuthToken(authorizationToken);
+
+        authorizeUser(userAuthEntity, "User is signed out.Sign in first to get all questions posted by a specific user");
+        // Validate if requested user exist or not
+        if (userDao.getUserAuthToken(userId) == null) {
+            throw new UserNotFoundException("USR-001", "User with entered uuid whose question details are to be seen does not exist");
+        }
+        return questionDao.getAllQuestionsByUser(userId);
+    }
+
     private void authorizeUser(UserAuthTokenEntity userAuthEntity, final String log_out_ERROR) throws AuthorizationFailedException {
         if (userAuthEntity == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");

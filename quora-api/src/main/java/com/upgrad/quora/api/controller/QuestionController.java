@@ -123,6 +123,39 @@ public class QuestionController {
         return new ResponseEntity<QuestionDeleteResponse>(questionDeleteResponse, HttpStatus.OK);
     }
 
+    /**
+     * This question controller method handles the get all questions by a user request or the question/all/questionId endpoint.
+     * This endpoint can be accessed by any user who is authenticated by the quora application
+     * @param  userId
+     * @param  accessToken
+     * @return ResponseEntity with list of QuestionDetailsResponse
+     */
+    @RequestMapping(method = RequestMethod.GET, path ="/question/all/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestionsByUser(@PathVariable("userId") final String userId, @RequestHeader("authorization") final String accessToken) throws AuthorizationFailedException, UserNotFoundException {
+        String token = getAccessToken(accessToken);
+        // Get all questions for requested user
+        List<QuestionEntity> allQuestions = questionService.getAllQuestionsByUser(userId, accessToken);
+
+        // Create response
+        List<QuestionDetailsResponse> allQuestionDetailsResponse = new ArrayList<QuestionDetailsResponse>();
+
+        allQuestions.forEach(questionEntity -> {
+            QuestionDetailsResponse questionDetailsResponse = new QuestionDetailsResponse()
+                    .content(questionEntity.getContent())
+                    .id(questionEntity.getUuid());
+            allQuestionDetailsResponse.add(questionDetailsResponse);
+        });
+
+        // Return response
+        return new ResponseEntity<List<QuestionDetailsResponse>>(allQuestionDetailsResponse, HttpStatus.OK);
+    }
+
+    /**
+     * User can give only Access token or Bearer accessToken as input.
+     *
+     * @param accessToken
+     * @return token
+     */
     private String getAccessToken(String accessToken) {
         if (accessToken.startsWith("Bearer ")) {
             return (accessToken.split("Bearer "))[1];
