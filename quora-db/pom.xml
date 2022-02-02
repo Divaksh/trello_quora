@@ -120,7 +120,7 @@
 
   <properties>
     <postgresql.driver.name>org.postgresql.Driver</postgresql.driver.name>
-    <postgresql.driver.version>42.2.2</postgresql.driver.version>
+    <postgresql.driver.version>42.2.25</postgresql.driver.version>
     <sql-maven-plugin.version>1.5</sql-maven-plugin.version>
     <sql.path>${basedir}/src/main/resources/sql</sql.path>
   </properties>
