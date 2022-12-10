@@ -9,7 +9,7 @@
       <artifactId>spring-web</artifactId>
       <groupId>org.springframework</groupId>
       <scope>compile</scope>
-      <version>5.0.8.RELEASE</version>
+      <version>6.0.0</version>
     </dependency>
     <dependency>
       <artifactId>jackson-annotations</artifactId>
